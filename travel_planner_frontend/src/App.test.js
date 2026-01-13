@@ -10,7 +10,9 @@ test("redirects unauthenticated users to Login (auth-gated routing)", async () =
   render(<App />);
 
   // RequireAuth redirects anonymous users to /login.
-  expect(await screen.findByText(/Sign in/i)).toBeInTheDocument();
+  // "Sign in" appears multiple times on the page (title + submit button),
+  // so use an unambiguous, accessible selector for the submit button.
+  expect(await screen.findByRole("button", { name: /sign in/i })).toBeInTheDocument();
   expect(screen.getByText(/Demo credentials/i)).toBeInTheDocument();
 });
 
