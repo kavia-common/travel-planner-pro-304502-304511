@@ -1,0 +1,97 @@
+.card{
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(17,24,39,.80);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.header{
+  padding: 14px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.headerTitle{
+  font-weight: 900;
+}
+
+.headerHint{
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.weekdays{
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.weekday{
+  padding: 10px 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.grid{
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.day{
+  border: none;
+  background: transparent;
+  color: var(--text);
+  min-height: 96px;
+  padding: 10px;
+  text-align: left;
+  border-top: 1px solid rgba(255,255,255,.06);
+  border-right: 1px solid rgba(255,255,255,.06);
+  cursor: pointer;
+}
+
+.day:nth-child(7n){
+  border-right: none;
+}
+
+.day:hover{
+  background: rgba(255,255,255,.05);
+}
+
+.dayMuted{
+  color: rgba(229,231,235,.42);
+  background: rgba(255,255,255,.02);
+}
+
+.dayNum{
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.dayItems{
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pill{
+  padding: 4px 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(97,218,251,.18);
+  background: rgba(97,218,251,.10);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.more{
+  font-size: 11px;
+  color: var(--muted);
+}

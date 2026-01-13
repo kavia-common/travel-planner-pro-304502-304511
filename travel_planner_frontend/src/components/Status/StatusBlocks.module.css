@@ -1,0 +1,22 @@
+.block{
+  border-radius: var(--radius);
+  border: 1px dashed rgba(255,255,255,.16);
+  background: rgba(255,255,255,.04);
+  padding: 16px;
+}
+
+.title{
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.message{
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.error{
+  border-style: solid;
+  border-color: rgba(239,68,68,.30);
+  background: rgba(239,68,68,.06);
+}

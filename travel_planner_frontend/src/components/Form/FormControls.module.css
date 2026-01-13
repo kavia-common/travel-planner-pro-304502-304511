@@ -1,0 +1,41 @@
+.field{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.labelRow{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.label{
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(229,231,235,.92);
+}
+
+.hint{
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.input, .textarea, .select{
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  padding: 10px 12px;
+  outline: none;
+}
+
+.textarea{
+  resize: vertical;
+}
+
+.input:focus, .textarea:focus, .select:focus{
+  border-color: rgba(97,218,251,.30);
+  box-shadow: 0 0 0 4px rgba(97,218,251,.10);
+}
