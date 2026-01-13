@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Modal from "../components/Modal/Modal";
-import { EmptyBlock } from "../components/Status/StatusBlocks";
+import { EmptyBlock, ErrorBlock, LoadingBlock } from "../components/Status/StatusBlocks";
 import { Field, TextArea, TextInput } from "../components/Form/FormControls";
 import { useAppStore } from "../state/appStore";
 import { useNotifications } from "../state/notifications";
@@ -52,19 +52,27 @@ export default function TripsPage() {
     setModalOpen(true);
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     if (!draft.name.trim()) {
       notify({ type: "error", title: "Missing name", message: "Trip name is required." });
       return;
     }
-    actions.upsertTrip(draft);
-    notify({ type: "success", title: "Saved", message: editing ? "Trip updated." : "Trip created." });
-    setModalOpen(false);
+    const res = await actions.upsertTrip(draft);
+    if (res.ok) {
+      notify({ type: "success", title: "Saved", message: editing ? "Trip updated." : "Trip created." });
+      setModalOpen(false);
+    } else {
+      notify({ type: "error", title: "Save failed", message: res.error || "Unable to save trip." });
+    }
   };
 
-  const onDelete = (id) => {
-    actions.removeTrip(id);
-    notify({ type: "success", title: "Deleted", message: "Trip removed." });
+  const onDelete = async (id) => {
+    const res = await actions.removeTrip(id);
+    if (res.ok) {
+      notify({ type: "success", title: "Deleted", message: "Trip removed." });
+    } else {
+      notify({ type: "error", title: "Delete failed", message: res.error || "Unable to delete trip." });
+    }
   };
 
   return (
@@ -79,7 +87,11 @@ export default function TripsPage() {
         </button>
       </div>
 
-      {!state.trips.length ? (
+      {state.loading?.trips ? (
+        <LoadingBlock title="Loading trips…" message="Fetching your trips from the server." />
+      ) : state.error?.trips ? (
+        <ErrorBlock title="Could not load trips" message={String(state.error.trips)} />
+      ) : !state.trips.length ? (
         <EmptyBlock title="No trips yet" message="Create a trip to start adding destinations and itinerary items." />
       ) : (
         <div className={styles.tableCard}>
@@ -93,7 +105,7 @@ export default function TripsPage() {
               <div key={t.id} className={styles.trRow}>
                 <div className={styles.strong}>{t.name}</div>
                 <div className={styles.muted}>
-                  {t.startDate} → {t.endDate}
+                  {t.startDate || "—"} → {t.endDate || "—"}
                 </div>
                 <div className={styles.rowActions}>
                   <button className={styles.secondaryBtn} onClick={() => openEdit(t)}>

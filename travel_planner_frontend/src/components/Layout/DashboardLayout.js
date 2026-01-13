@@ -46,7 +46,7 @@ export default function DashboardLayout() {
 
         <div className={styles.sidebarFooter}>
           <div className={styles.hint}>
-            API: <code className={styles.code}>{process.env.REACT_APP_API_BASE_URL || "http://localhost:8000"}</code>
+            API: <code className={styles.code}>{process.env.REACT_APP_API_BASE_URL || "http://localhost:3001"}</code>
           </div>
         </div>
       </aside>

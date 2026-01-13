@@ -5,7 +5,7 @@
  * - No backend port is hardcoded; a sensible default is used for local dev.
  */
 
-const DEFAULT_API_BASE_URL = "http://localhost:8000";
+const DEFAULT_API_BASE_URL = "http://localhost:3001";
 
 // PUBLIC_INTERFACE
 export const API_CONFIG = Object.freeze({
@@ -13,6 +13,10 @@ export const API_CONFIG = Object.freeze({
   baseUrl: (process.env.REACT_APP_API_BASE_URL || DEFAULT_API_BASE_URL).replace(/\/+$/, ""),
   /** URL path segments for backend resources. */
   paths: Object.freeze({
+    authLogin: "/auth/login",
+    authRegister: "/auth/register",
+    authMe: "/auth/me",
+
     trips: "/trips",
     destinations: "/destinations",
     itineraryItems: "/itinerary",

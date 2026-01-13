@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Modal from "../components/Modal/Modal";
-import { EmptyBlock } from "../components/Status/StatusBlocks";
+import { EmptyBlock, ErrorBlock, LoadingBlock } from "../components/Status/StatusBlocks";
 import { Field, Select, TextArea, TextInput } from "../components/Form/FormControls";
 import { useAppStore } from "../state/appStore";
 import { useNotifications } from "../state/notifications";
@@ -56,7 +56,7 @@ export default function DestinationsPage() {
     setModalOpen(true);
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     if (!draft.tripId) {
       notify({ type: "error", title: "Missing trip", message: "Please select a trip." });
       return;
@@ -65,14 +65,22 @@ export default function DestinationsPage() {
       notify({ type: "error", title: "Missing name", message: "Destination name is required." });
       return;
     }
-    actions.upsertDestination(draft);
-    notify({ type: "success", title: "Saved", message: editing ? "Destination updated." : "Destination created." });
-    setModalOpen(false);
+    const res = await actions.upsertDestination(draft);
+    if (res.ok) {
+      notify({ type: "success", title: "Saved", message: editing ? "Destination updated." : "Destination created." });
+      setModalOpen(false);
+    } else {
+      notify({ type: "error", title: "Save failed", message: res.error || "Unable to save destination." });
+    }
   };
 
-  const onDelete = (id) => {
-    actions.removeDestination(id);
-    notify({ type: "success", title: "Deleted", message: "Destination removed." });
+  const onDelete = async (id) => {
+    const res = await actions.removeDestination(id);
+    if (res.ok) {
+      notify({ type: "success", title: "Deleted", message: "Destination removed." });
+    } else {
+      notify({ type: "error", title: "Delete failed", message: res.error || "Unable to delete destination." });
+    }
   };
 
   const tripName = (tripId) => state.trips.find((t) => t.id === tripId)?.name || "Unknown trip";
@@ -89,7 +97,11 @@ export default function DestinationsPage() {
         </button>
       </div>
 
-      {!state.destinations.length ? (
+      {state.loading?.destinations ? (
+        <LoadingBlock title="Loading destinations…" message="Fetching destinations from the server." />
+      ) : state.error?.destinations ? (
+        <ErrorBlock title="Could not load destinations" message={String(state.error.destinations)} />
+      ) : !state.destinations.length ? (
         <EmptyBlock title="No destinations yet" message="Create a destination and associate it with a trip." />
       ) : (
         <div className={styles.tableCard}>

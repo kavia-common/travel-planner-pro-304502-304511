@@ -11,15 +11,15 @@ export default function MapPage() {
 
   const destinations = state.destinations.filter((d) => (selectedTripId ? d.tripId === selectedTripId : true));
 
-  // Placeholder coordinates (spread out) until real geo fields exist.
+  // Use real destination coords when present; otherwise fall back to placeholder spread.
   const markers = useMemo(() => {
     const baseLat = 37.7749;
     const baseLng = -122.4194;
     return destinations.map((d, idx) => ({
       id: d.id,
       label: d.name,
-      lat: baseLat + idx * 0.02,
-      lng: baseLng + idx * 0.02,
+      lat: typeof d.lat === "number" ? d.lat : baseLat + idx * 0.02,
+      lng: typeof d.lng === "number" ? d.lng : baseLng + idx * 0.02,
     }));
   }, [destinations]);
 

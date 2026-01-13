@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import Modal from "../components/Modal/Modal";
-import { EmptyBlock } from "../components/Status/StatusBlocks";
+import { EmptyBlock, ErrorBlock, LoadingBlock } from "../components/Status/StatusBlocks";
 import { Field, Select, TextInput } from "../components/Form/FormControls";
 import { useAppStore } from "../state/appStore";
 import { useNotifications } from "../state/notifications";
@@ -68,19 +68,27 @@ export default function BookingsPage() {
     setModalOpen(true);
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     if (!draft.tripId) {
       notify({ type: "error", title: "Missing trip", message: "Please select a trip." });
       return;
     }
-    actions.upsertBooking(draft);
-    notify({ type: "success", title: "Saved", message: editing ? "Booking updated." : "Booking created." });
-    setModalOpen(false);
+    const res = await actions.upsertBooking(draft);
+    if (res.ok) {
+      notify({ type: "success", title: "Saved", message: editing ? "Booking updated." : "Booking created." });
+      setModalOpen(false);
+    } else {
+      notify({ type: "error", title: "Save failed", message: res.error || "Unable to save booking." });
+    }
   };
 
-  const onDelete = (id) => {
-    actions.removeBooking(id);
-    notify({ type: "success", title: "Deleted", message: "Booking removed." });
+  const onDelete = async (id) => {
+    const res = await actions.removeBooking(id);
+    if (res.ok) {
+      notify({ type: "success", title: "Deleted", message: "Booking removed." });
+    } else {
+      notify({ type: "error", title: "Delete failed", message: res.error || "Unable to delete booking." });
+    }
   };
 
   return (
@@ -95,7 +103,11 @@ export default function BookingsPage() {
         </button>
       </div>
 
-      {!state.bookings.length ? (
+      {state.loading?.bookings ? (
+        <LoadingBlock title="Loading bookings…" message="Fetching bookings from the server." />
+      ) : state.error?.bookings ? (
+        <ErrorBlock title="Could not load bookings" message={String(state.error.bookings)} />
+      ) : !state.bookings.length ? (
         <EmptyBlock title="No bookings yet" message="Add flight/hotel/train confirmations here." />
       ) : (
         <div className={styles.tableCard}>

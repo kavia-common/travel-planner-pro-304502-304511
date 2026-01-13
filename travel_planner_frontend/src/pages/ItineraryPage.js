@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import CalendarView from "../components/Calendar/CalendarView";
 import Modal from "../components/Modal/Modal";
-import { EmptyBlock } from "../components/Status/StatusBlocks";
+import { EmptyBlock, ErrorBlock, LoadingBlock } from "../components/Status/StatusBlocks";
 import { Field, Select, TextArea, TextInput } from "../components/Form/FormControls";
 import { useAppStore } from "../state/appStore";
 import { useNotifications } from "../state/notifications";
@@ -76,7 +76,7 @@ export default function ItineraryPage() {
     setModalOpen(true);
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     if (!draft.tripId) {
       notify({ type: "error", title: "Missing trip", message: "Please select a trip." });
       return;
@@ -89,14 +89,22 @@ export default function ItineraryPage() {
       notify({ type: "error", title: "Missing title", message: "Title is required." });
       return;
     }
-    actions.upsertItineraryItem(draft);
-    notify({ type: "success", title: "Saved", message: editing ? "Itinerary item updated." : "Itinerary item created." });
-    setModalOpen(false);
+    const res = await actions.upsertItineraryItem(draft);
+    if (res.ok) {
+      notify({ type: "success", title: "Saved", message: editing ? "Itinerary item updated." : "Itinerary item created." });
+      setModalOpen(false);
+    } else {
+      notify({ type: "error", title: "Save failed", message: res.error || "Unable to save itinerary item." });
+    }
   };
 
-  const onDelete = (id) => {
-    actions.removeItineraryItem(id);
-    notify({ type: "success", title: "Deleted", message: "Itinerary item removed." });
+  const onDelete = async (id) => {
+    const res = await actions.removeItineraryItem(id);
+    if (res.ok) {
+      notify({ type: "success", title: "Deleted", message: "Itinerary item removed." });
+    } else {
+      notify({ type: "error", title: "Delete failed", message: res.error || "Unable to delete itinerary item." });
+    }
   };
 
   const changeMonth = (delta) => {
@@ -104,6 +112,22 @@ export default function ItineraryPage() {
     next.setMonth(next.getMonth() + delta);
     setMonth(next);
   };
+
+  if (state.loading?.trips) {
+    return (
+      <div className={styles.page}>
+        <LoadingBlock title="Loading trips…" message="Fetching trips required for itinerary." />
+      </div>
+    );
+  }
+
+  if (state.error?.trips) {
+    return (
+      <div className={styles.page}>
+        <ErrorBlock title="Could not load trips" message={String(state.error.trips)} />
+      </div>
+    );
+  }
 
   if (!state.trips.length) {
     return (
